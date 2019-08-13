@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">MovingAlarm</string>
+    <string name="main_title">Moving\nAlarm</string>
+    <string name="preference_file_key">ma.pref</string>
+    <string name="hour_key">hour</string>
+    <string name="minute_key">minute</string>
+    <string name="onOFF_key">onOFF</string>
+
+    // display
+    <string name="SET">SET</string>
+    <string name="SAVE">SAVE</string>
+    <string name="days">Days of week</string>
+    <string name="sunday">SUN</string>
+    <string name="monday">MON</string>
+    <string name="tuesday">TUE</string>
+    <string name="wednesday">WED</string>
+    <string name="thursday">THU</string>
+    <string name="friday">FRI</string>
+    <string name="saturday">SAT</string>
+
+</resources>
