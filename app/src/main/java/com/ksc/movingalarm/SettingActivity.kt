@@ -7,6 +7,7 @@ import android.app.TimePickerDialog
 import android.text.format.DateFormat
 import android.widget.TextView
 import android.widget.TimePicker
+import kotlinx.android.synthetic.main.activity_setting.*
 import java.util.*
 
 
@@ -32,7 +33,7 @@ class SettingActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<TextView>(R.id.set_time).text = "${myAlarm.hour} " + if (myAlarm.minute < 10 ) ": 0${myAlarm.minute}" else ": ${myAlarm.minute}"
+        set_time.text = "${myAlarm.hour} " + if (myAlarm.minute < 10 ) ": 0${myAlarm.minute}" else ": ${myAlarm.minute}"
     }
 
     fun showTimePickerDialog(view: View) {
@@ -43,7 +44,7 @@ class SettingActivity : AppCompatActivity() {
                     override fun onTimeSet(timePicker: TimePicker, hourOfDay:Int, minutes:Int) {
                         myAlarm.hour = hourOfDay
                         myAlarm.minute = minutes
-                        findViewById<TextView>(R.id.set_time).text = "${myAlarm.hour} " + if (myAlarm.minute < 10 ) ": 0${myAlarm.minute}" else ": ${myAlarm.minute}"
+                        set_time.text = "${myAlarm.hour} " + if (myAlarm.minute < 10 ) ": 0${myAlarm.minute}" else ": ${myAlarm.minute}"
                     }
                 },
                 c.get(Calendar.HOUR_OF_DAY),

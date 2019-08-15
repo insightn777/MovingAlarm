@@ -1,16 +1,11 @@
 package com.ksc.movingalarm
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.TextView
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
-
-// const val EXTRA_MESSAGE = "main.open.setting"
 
 /*
     TO DO :
@@ -21,6 +16,8 @@ import kotlinx.android.synthetic.main.activity_main.*
         * Alarm off
         * DATE set
 */
+
+// const val EXTRA_MESSAGE = "main.open.setting"
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,24 +31,18 @@ class MainActivity : AppCompatActivity() {
 
         val myAlarm = Alarm(this)
 
-        findViewById<TextView>(R.id.main_time).text = "${myAlarm.hour} " + if (myAlarm.minute < 10 ) ": 0${myAlarm.minute}" else ": ${myAlarm.minute}"
-
-        switch1.isChecked = myAlarm.onOFF
+        main_time.text = "${myAlarm.hour} " + if (myAlarm.minute < 10 ) ": 0${myAlarm.minute}" else ": ${myAlarm.minute}"
 
         var setDay = ""
         for (i in 0..6) {
             if (myAlarm.dayCheck[i]) setDay += myAlarm.daysOfWeek[i] + "  "
         }
-        findViewById<TextView>(R.id.days_of_week).text = setDay
+        days_of_week.text = setDay
 
-        switch1.setOnCheckedChangeListener { _, isChecked ->
+        on_switch.isChecked = myAlarm.onOFF
+
+        on_switch.setOnCheckedChangeListener { _, isChecked ->
             myAlarm.onOFF = isChecked
-            val mAM = myAlarmManager(this)
-            if (myAlarm.onOFF) {
-                mAM.setAlarm(this, myAlarm.hour, myAlarm.minute)
-            } else {
-                mAM.cancelAlarm()
-            }
             myAlarm.save()
         }
     }
