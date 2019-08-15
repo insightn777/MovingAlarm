@@ -7,17 +7,19 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.PowerManager
 import android.util.Log
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class Alarm(context: Context) {
 
     private val sharedPref = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
     private val contexT = context
     val dayCheck = BooleanArray(7)
-    val daysOfWeek = arrayOf(
+    private val daysOfWeek = arrayOf(
         context.getString(R.string.sunday),
         context.getString(R.string.monday),
         context.getString(R.string.tuesday),
@@ -28,7 +30,7 @@ class Alarm(context: Context) {
     )
     var hour = sharedPref.getInt(context.getString(R.string.hour_key),0)
     var minute = sharedPref.getInt(context.getString(R.string.minute_key),0)
-    private var triggerTime = sharedPref.getLong(context.getString(R.string.trigger_time_key),0)
+    private var triggerTime = 0L
     var onOFF = sharedPref.getBoolean(context.getString(R.string.onOFF_key),false)
 
     init {
@@ -44,22 +46,14 @@ class Alarm(context: Context) {
             set(Calendar.SECOND, 0)
         }
 
-        if ( ( System.currentTimeMillis() + 10000 ) - calendar.timeInMillis  > 0) {
-//            triggerTime = calendar.timeInMillis + 86400000L
-//            calendar.add(Calendar.DATE,2)
-            Log.e("next day", "gogo")
-        } else {
-//            triggerTime = calendar.timeInMillis
-        }
-
         triggerTime = calendar.timeInMillis
 
-//        Log.e("save","Trigger time: ${triggerTime} \n calendar time : ${calendar.timeInMillis} \n current Time: ${System.currentTimeMillis()}")
+        val df: DateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        Log.e("save", "save time: ${df.format(calendar.timeInMillis)}")
 
         with (sharedPref.edit()) {
             putInt(contexT.getString(R.string.hour_key), hour)
             putInt(contexT.getString(R.string.minute_key), minute)
-            putLong(contexT.getString(R.string.trigger_time_key),triggerTime)
             for (i in 0..6) {
                 putBoolean(daysOfWeek[i], dayCheck[i])
             }
@@ -70,8 +64,17 @@ class Alarm(context: Context) {
         if (onOFF) {
             setAlarm()
         } else {
-            cancelAlarm()
+            alarmMgr.cancel(alarmIntent)
+
+            // REBOOT DISABLE
+            val receiver = ComponentName(contexT, BootReceiver::class.java)
+            contexT.packageManager.setComponentEnabledSetting(
+                receiver,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP
+            )
         }
+
     } // save()
 
     private val alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -81,11 +84,15 @@ class Alarm(context: Context) {
 
     private fun setAlarm () {
 
-        alarmMgr.setAlarmClock(
-            AlarmManager.AlarmClockInfo(triggerTime, alarmIntent),
+        alarmMgr.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            triggerTime,
+//            AlarmManager.INTERVAL_DAY,
+            60000,
             alarmIntent
         )
 
+        // REBOOT ENABLE
         val receiver = ComponentName(contexT, BootReceiver::class.java)
         contexT.packageManager.setComponentEnabledSetting(
             receiver,
@@ -93,30 +100,20 @@ class Alarm(context: Context) {
             PackageManager.DONT_KILL_APP
         )
 
-        val df: DateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        Log.e("setAlarm", "Alarm time: ${df.format(showAlarm().triggerTime)}")
-
     } // setAlarm()
 
-    fun repeatAlarm() {
-        triggerTime += 2*86400000L
-        with (sharedPref.edit()) {
-            putLong(contexT.getString(R.string.trigger_time_key),triggerTime)
-            commit()
-        }
-        setAlarm()
-    }
-
-    fun showAlarm() :AlarmManager.AlarmClockInfo {
-        return alarmMgr.nextAlarmClock
-    }
-
-    private fun cancelAlarm () {
-        // If the alarm has been set, cancel it.
-        alarmMgr.cancel(alarmIntent)
-    }
-
 }
+
+//    alarmMgr.setAlarmClock(
+//        AlarmManager.AlarmClockInfo(triggerTime, alarmIntent),
+//        alarmIntent
+//    )
+//    fun showAlarm() :Long {
+//        return alarmMgr.nextAlarmClock.triggerTime
+//    }
+//    val df: DateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+//    Log.e("setAlarm", "Alarm time: ${df.format(showAlarm())}\n")
+
 
 /********************************
 
@@ -126,20 +123,35 @@ class Alarm(context: Context) {
 
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+
         val calendar = Calendar.getInstance()
-        val myAlarm = Alarm(context)
+        val sharedPref = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        val daysOfWeek = arrayOf(
+            context.getString(R.string.sunday),
+            context.getString(R.string.monday),
+            context.getString(R.string.tuesday),
+            context.getString(R.string.wednesday),
+            context.getString(R.string.thursday),
+            context.getString(R.string.friday),
+            context.getString(R.string.saturday)
+        )
+       Log.e("receive", "Alarm time: ")
 
-        if ( myAlarm.dayCheck[calendar.get(Calendar.DAY_OF_WEEK) - 1] ) runAlarm(context)
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
 
-//            myAlarm.repeatAlarm()
+        val wakeLock = powerManager.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK,
+            "MovingAlarm:WAKELOCK"
+        )
+        wakeLock.acquire(60000)
 
-        val df: DateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        Log.e("receive", "Alarm time: ${df.format(myAlarm.showAlarm().triggerTime)}")
+       if ( sharedPref.getBoolean(daysOfWeek[calendar.get(Calendar.DAY_OF_WEEK) - 1],false) ) runAlarm(context)
+
     }
 
     private fun runAlarm (context: Context) {
         val intent = Intent(context, AlarmActivity::class.java).apply {
-            // putExtra(EXTRA_MESSAGE, //and somting )
+            // putExtra(EXTRA_MESSAGE, //and something )
         }
         context.startActivity(intent)
     }
