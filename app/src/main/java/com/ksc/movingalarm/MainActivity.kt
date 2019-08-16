@@ -17,7 +17,6 @@ import java.util.*
             1) Alarm on/off
             2) vibrator
         * Alarm off
-        * DATE set
 */
 
 // const val EXTRA_MESSAGE = "main.open.setting"

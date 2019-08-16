@@ -8,6 +8,6 @@ class AlarmActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alarm)
-        setTurnScreenOn(true)
+//        setTurnScreenOn(true)  min api 27 but now 23
     }
 }
