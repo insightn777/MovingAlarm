@@ -1,13 +1,17 @@
 <resources>
     <string name="app_name">MovingAlarm</string>
-    <string name="main_title">Moving\nAlarm</string>
+
+    //key
     <string name="preference_file_key">ma.pref</string>
     <string name="hour_key">hour</string>
     <string name="minute_key">minute</string>
     <string name="onOFF_key">onOFF</string>
     <string name="trigger_time_key">trigger</string>
+    <string name="latitude_key">latitude</string>
+    <string name="longitude_key">longitude</string>
 
     // display
+    <string name="main_title">Moving\nAlarm</string>
     <string name="SET">SET</string>
     <string name="SAVE">SAVE</string>
     <string name="days">Days of week</string>

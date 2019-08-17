@@ -13,7 +13,6 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-
 class Alarm(context: Context) {
 
     private val sharedPref = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
@@ -32,6 +31,8 @@ class Alarm(context: Context) {
     var minute = sharedPref.getInt(context.getString(R.string.minute_key),0)
     private var triggerTime = 0L
     var onOFF = sharedPref.getBoolean(context.getString(R.string.onOFF_key),false)
+    var latitude = sharedPref.getString(context.getString(R.string.latitude_key),"35.79867668831729").toDouble()
+    var longitude = sharedPref.getString(context.getString(R.string.longitude_key),"128.49933419376612").toDouble()
 
     init {
         for (i in 0..6) {
@@ -57,9 +58,14 @@ class Alarm(context: Context) {
             for (i in 0..6) {
                 putBoolean(daysOfWeek[i], dayCheck[i])
             }
+            putString(contexT.getString(R.string.latitude_key),latitude.toString())
+            putString(contexT.getString(R.string.longitude_key),longitude.toString())
             putBoolean(contexT.getString(R.string.onOFF_key),onOFF)
             commit()
         }
+
+        Log.e("save", "save time: ${df.format(calendar.timeInMillis)}")
+
 
         if (onOFF) {
             setAlarm()
