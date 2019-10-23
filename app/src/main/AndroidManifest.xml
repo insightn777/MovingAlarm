@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.ksc.movingalarm">
+        package="com.ksc.movingalarm">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
             android:allowBackup="true"
@@ -14,26 +14,37 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
+        <service
+                android:name=".MyIntentService"
+                android:exported="false" />
+
+        <activity android:name=".ReportActivity" />
+        <activity android:name=".AwakeActivity" />
+
         <meta-data
                 android:name="com.google.android.geo.API_KEY"
-                android:value="AIzaSyAX2YLhaGn2GdNBwJbJGi20liW3b4mFtQs"/>
-        <activity android:name=".AlarmActivity">
-        </activity>
+                android:value="AIzaSyAX2YLhaGn2GdNBwJbJGi20liW3b4mFtQs" />
+
+        <activity android:name=".AlarmActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <receiver android:name=".AlarmReceiver"/>
-        <receiver android:name=".GeofenceBroadcastReceiver"/>
+        <service
+                android:name=".TimeService"
+                android:exported="false" />
+
+        <receiver android:name=".AlarmReceiver" />
+        <receiver android:name=".GeoFenceBroadcastReceiver" />
         <receiver
                 android:name=".BootReceiver"
                 android:enabled="false">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
     </application>

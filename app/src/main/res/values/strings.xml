@@ -9,6 +9,7 @@
     <string name="trigger_time_key">trigger</string>
     <string name="latitude_key">latitude</string>
     <string name="longitude_key">longitude</string>
+    <string name="limitTime_key">limitTime</string>
 
     // display
     <string name="main_title">Moving\nAlarm</string>

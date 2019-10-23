@@ -13,10 +13,10 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-class Alarm(context: Context) {
+class Alarm(private val context: Context) {
 
     private val sharedPref = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-    private val contexT = context
+
     val dayCheck = BooleanArray(7)
     private val daysOfWeek = arrayOf(
         context.getString(R.string.sunday),
@@ -31,8 +31,9 @@ class Alarm(context: Context) {
     var minute = sharedPref.getInt(context.getString(R.string.minute_key),0)
     private var triggerTime = 0L
     var onOFF = sharedPref.getBoolean(context.getString(R.string.onOFF_key),false)
-    var latitude = sharedPref.getString(context.getString(R.string.latitude_key),"35.79867668831729").toDouble()
-    var longitude = sharedPref.getString(context.getString(R.string.longitude_key),"128.49933419376612").toDouble()
+    var latitude = sharedPref.getString(context.getString(R.string.latitude_key),"0").toDouble()
+    var longitude = sharedPref.getString(context.getString(R.string.longitude_key),"0").toDouble()
+    var limitTime = sharedPref.getInt(context.getString(R.string.limitTime_key),0)
 
     init {
         for (i in 0..6) {
@@ -53,14 +54,15 @@ class Alarm(context: Context) {
         Log.e("save", "save time: ${df.format(calendar.timeInMillis)}")
 
         with (sharedPref.edit()) {
-            putInt(contexT.getString(R.string.hour_key), hour)
-            putInt(contexT.getString(R.string.minute_key), minute)
+            putInt(context.getString(R.string.hour_key), hour)
+            putInt(context.getString(R.string.minute_key), minute)
+            putInt(context.getString(R.string.limitTime_key), limitTime)
             for (i in 0..6) {
                 putBoolean(daysOfWeek[i], dayCheck[i])
             }
-            putString(contexT.getString(R.string.latitude_key),latitude.toString())
-            putString(contexT.getString(R.string.longitude_key),longitude.toString())
-            putBoolean(contexT.getString(R.string.onOFF_key),onOFF)
+            putString(context.getString(R.string.latitude_key),latitude.toString())
+            putString(context.getString(R.string.longitude_key),longitude.toString())
+            putBoolean(context.getString(R.string.onOFF_key),onOFF)
             commit()
         }
 
@@ -73,8 +75,8 @@ class Alarm(context: Context) {
             alarmMgr.cancel(alarmIntent)
 
             // REBOOT DISABLE
-            val receiver = ComponentName(contexT, BootReceiver::class.java)
-            contexT.packageManager.setComponentEnabledSetting(
+            val receiver = ComponentName(context, BootReceiver::class.java)
+            context.packageManager.setComponentEnabledSetting(
                 receiver,
                 PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP
@@ -93,14 +95,14 @@ class Alarm(context: Context) {
         alarmMgr.setRepeating(
             AlarmManager.RTC_WAKEUP,
             triggerTime,
-//            AlarmManager.INTERVAL_DAY,
-            60000,
+            AlarmManager.INTERVAL_DAY,
+//            60 * 1000,
             alarmIntent
         )
 
         // REBOOT ENABLE
-        val receiver = ComponentName(contexT, BootReceiver::class.java)
-        contexT.packageManager.setComponentEnabledSetting(
+        val receiver = ComponentName(context, BootReceiver::class.java)
+        context.packageManager.setComponentEnabledSetting(
             receiver,
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
             PackageManager.DONT_KILL_APP
@@ -156,10 +158,14 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
     private fun runAlarm (context: Context) {
-        val intent = Intent(context, AlarmActivity::class.java).apply {
-            // putExtra(EXTRA_MESSAGE, //and something )
+
+        Intent(context, TimeService::class.java).also { intent ->
+            context.startService(intent)
         }
-        context.startActivity(intent)
+        Intent(context, AwakeActivity::class.java).also { intent ->
+            context.startActivity(intent)
+        }
+
     }
 }
 

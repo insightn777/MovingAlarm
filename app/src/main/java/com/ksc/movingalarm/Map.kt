@@ -6,11 +6,13 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -18,65 +20,101 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 
-class Map () {
+const val GPS_ON = 123
+
+class Map (private val activity: Activity) {
 
     lateinit var mMap :GoogleMap
     lateinit var destMarker: Marker
+    var pos = LatLng(0.0,0.0)
 
-    private lateinit var geofencingClient: GeofencingClient
+    private lateinit var geoFencingClient: GeofencingClient
+    private lateinit var geoFencePendingIntent: PendingIntent
 
-    fun initLocation(latitude: Double, longitude: Double, activity: Activity) {
+    fun createLocationRequest() {
 
-        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
+        val locationRequest = LocationRequest.create().apply {
+            interval = 10000
+            fastestInterval = 5000
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+            .setAlwaysShow(true)
+
+        val task = LocationServices.getSettingsClient(activity).checkLocationSettings(builder.build())
+            .addOnSuccessListener {
+                initLocation()
+            }
+            .addOnFailureListener {
+            if (it is ResolvableApiException) {
+                try {
+                    it.startResolutionForResult(activity, GPS_ON)
+                } catch (sendEx: IntentSender.SendIntentException) {
+
+                }
+            }
+        }
+    }
+
+    fun checkPermission(latitude: Double, longitude: Double) {
+
+        pos = LatLng(latitude,longitude)
 
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted
-            Log.e("permission","not")
-
+            Log.e("permission","not granted")
             // Should we show an explanation?
             if ( ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION) ) {
                 // Show an explanation to the user *asynchronously* -- don't block this thread waiting for the user's response!
                 // After the user sees the explanation, try again to request the permission.
                 Log.e("permission","show")
+                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION)
             } else {
                 // No more explanation needed, but we can request the permission.
-                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION)
                 Log.e("permission","no show")
+                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION)
             }
 
         } else {
             // Permission has already been granted
             Log.e("permission","already granted")
-            fusedLocationClient.lastLocation
-                .addOnSuccessListener { location: Location? ->
-                    if (location == null) {
-                        Log.e("location","fail")
-                    } else {
-                        val now = if (latitude * longitude < 1 ) { // 초기값 0 0 이 들어있으면 장치 현재 위치 아니면 마커 위치로
-                            LatLng(location.latitude, location.longitude)
-                        } else {
-                            LatLng(latitude, longitude)
-                        }
-
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(now,16f))
-                        Log.e("camera position : ", "${mMap.cameraPosition}")
-
-                        val dest = LatLng(latitude, longitude)
-                        destMarker = mMap.addMarker(MarkerOptions().position(dest).title("dest"))
-                    }
-                }
+            createLocationRequest()
         }
-    } // initLocation
+    }   // checkPermission
+
+    fun initLocation () {
+
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
+
+        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            if (location == null) {
+                Log.e("location","fail")
+            } else {
+                if (pos.latitude * pos.longitude < 1 ) // 초기값 0 0 이 들어있으면 장치 현재 위치 아니면 마커 위치로
+                    pos = LatLng(location.latitude, location.longitude)
+
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos,16f))
+                Log.e("camera position : ", "${mMap.cameraPosition}")
+
+                destMarker = mMap.addMarker(
+                    MarkerOptions()
+                        .position(pos)
+                        .title("destination")
+                )
+            }
+        }
+    }
 
 
-    fun addGeofence (latitude :Double, longitude :Double,context: Context) {
+    fun addGeofence (latitude :Double, longitude :Double) {
 
         // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling addGeofences() and removeGeofences().
-        val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
-        val geofencePendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val intent = Intent(activity, GeoFenceBroadcastReceiver::class.java)
+        geoFencePendingIntent = PendingIntent.getBroadcast(activity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        val geofencingRequest = GeofencingRequest.Builder().apply {
+        val geoFencingRequest = GeofencingRequest.Builder().apply {
             addGeofence(
                 Geofence.Builder()
                     // Set the request ID of the geofence. This is a string to identify this geofence.
@@ -88,60 +126,75 @@ class Map () {
                         20f
                     )
                     // Set the expiration duration of the geofence. This geofence gets automatically removed after this period of time.
-                    .setExpirationDuration(1000 * 60 * 30)
-
+                    .setExpirationDuration(30 * 60 * 1000)
+                    .setLoiteringDelay(2000)
                     // Set the transition types of interest. Alerts are only generated for these transition. We track entry and exit transitions in this sample.
-                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
-
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_DWELL)
                     // Create the geofence.
                     .build()
             )
         }.build()
 
-        geofencingClient = LocationServices.getGeofencingClient(context)
+        geoFencingClient = LocationServices.getGeofencingClient(activity)
 
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
-            Log.e("geofence", "permission not")
-
+            Log.e("geoFence", "permission not")
         } else {
-            geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
+            geoFencingClient.addGeofences(geoFencingRequest, geoFencePendingIntent)?.run {
                 addOnSuccessListener {
                     // Geofences added
-                    Log.e("geofence", "add")
+                    Log.e("geoFence", "add $latitude:$longitude")
+
                 }
                 addOnFailureListener {
                     // Failed to add geofences
-                    Log.e("geofence", "add fail")
+                    Log.e("geoFence", "add fail")
                 }
             }
 
         } //permission
 
-    }  //addGeofence
+    }  //addGeoFence
+
+    fun removeGeofence () {
+        geoFencingClient.removeGeofences(geoFencePendingIntent).run {
+            addOnSuccessListener {
+                // Geofences removed
+                Log.e("geoFence", "removed")
+            }
+            addOnFailureListener {
+                // Failed to remove geofences
+                Log.e("geoFence", "removed fail : $it")
+            }
+        }
+    }
 }
 
+/********************************
 
-class GeofenceBroadcastReceiver : BroadcastReceiver() {
+Receiver Class
+
+ ********************************/
+
+class GeoFenceBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        val geofencingEvent = GeofencingEvent.fromIntent(intent)
-        if (geofencingEvent.hasError()) {
-            Log.e("geofence", "error")
+        val geoFencingEvent = GeofencingEvent.fromIntent(intent)
+        if (geoFencingEvent.hasError()) {
+            Log.e("geoFence", "error")
             return
         }
         // Get the transition type. Test that the reported transition was of interest.
-        if (geofencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ) {
-
-            // Get the geofences that were triggered. A single event can trigger multiple geofences.
-            val triggeringGeofences = geofencingEvent.triggeringGeofences
-
-            // Get the transition details as a String.
-            // Send notification and log the transition details.
-            Log.e("geofence", "arrive")
+        if (geoFencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
+            geoFencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL ) {
+            Log.e("geoFence", "arrive : ${geoFencingEvent.geofenceTransition}")
+            Intent(context, TimeService::class.java).also { intent1 ->
+                context?.stopService(intent1)
+            }
 
         } else {
             // Log the error.
-            Log.e("geofence", "transition error")
+            Log.e("geoFence", "other transition")
         }
     }
 }
