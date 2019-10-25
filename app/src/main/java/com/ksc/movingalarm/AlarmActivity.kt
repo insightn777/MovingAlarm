@@ -43,8 +43,8 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
     Activity Control
      ***************/
 
-    var m = 0
-    var s = 0
+    private var m = 0
+    private var s = 0
     fun setCount(int: Int) {
         m = int/60
         s = int%60
@@ -66,10 +66,17 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
             // 서버로 도착 전송
             finish()
         }
-        val msg = Message().apply {
-            what = SERVICE_STOP
+//        val msg = Message().apply {
+//            what = SERVICE_STOP
+//        }
+//        mService.send(msg)
+
+        Intent(this, MyIntentService::class.java).apply {
+            action = ACTION_FAIL
+        }.also { intent1 ->
+            startService(intent1)
         }
-        mService.send(msg)
+
         finished = true
     }
 
@@ -121,16 +128,16 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
         Alarm(this)
     }
     private val myMap = Map(this)
-    var arrive = false
+    private var arrive = false
 
     override fun onMapReady(map: GoogleMap) {
         Log.e("map", "ready")
         myMap.mMap = map
         myMap.checkPermission(myAlarm.latitude, myAlarm.longitude)
-        myMap.addGeofence(myAlarm.latitude, myAlarm.longitude)
+        myMap.addGeofence(myAlarm.latitude, myAlarm.longitude, myAlarm.limitTime)
     }
 
-    var finished = false
+    private var finished = false
 
 
 //    val br = object : BroadcastReceiver() {

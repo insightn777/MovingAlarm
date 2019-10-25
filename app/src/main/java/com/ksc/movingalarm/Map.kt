@@ -25,8 +25,8 @@ const val GPS_ON = 123
 class Map (private val activity: Activity) {
 
     lateinit var mMap :GoogleMap
-    lateinit var destMarker: Marker
-    var pos = LatLng(0.0,0.0)
+    lateinit var mMarker: Marker
+    private var pos = LatLng(0.0,0.0)
 
     private lateinit var geoFencingClient: GeofencingClient
     private lateinit var geoFencePendingIntent: PendingIntent
@@ -98,17 +98,24 @@ class Map (private val activity: Activity) {
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos,16f))
                 Log.e("camera position : ", "${mMap.cameraPosition}")
 
-                destMarker = mMap.addMarker(
+                mMarker = mMap.addMarker(
                     MarkerOptions()
                         .position(pos)
                         .title("destination")
                 )
+                Log.e("Marker","${mMarker.id}")
+
             }
         }
     }
 
+    fun moveMarker(latLng: LatLng) {
+        mMarker.position = latLng
+        Log.e("Marker","${mMarker.id}")
+    }
 
-    fun addGeofence (latitude :Double, longitude :Double) {
+
+    fun addGeofence (latitude :Double, longitude :Double, limit :Int) {
 
         // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling addGeofences() and removeGeofences().
         val intent = Intent(activity, GeoFenceBroadcastReceiver::class.java)
@@ -126,7 +133,7 @@ class Map (private val activity: Activity) {
                         20f
                     )
                     // Set the expiration duration of the geofence. This geofence gets automatically removed after this period of time.
-                    .setExpirationDuration(30 * 60 * 1000)
+                    .setExpirationDuration(limit * 60 * 1000L)
                     .setLoiteringDelay(2000)
                     // Set the transition types of interest. Alerts are only generated for these transition. We track entry and exit transitions in this sample.
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_DWELL)
@@ -188,8 +195,10 @@ class GeoFenceBroadcastReceiver : BroadcastReceiver() {
         if (geoFencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
             geoFencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL ) {
             Log.e("geoFence", "arrive : ${geoFencingEvent.geofenceTransition}")
-            Intent(context, TimeService::class.java).also { intent1 ->
-                context?.stopService(intent1)
+            Intent(context, MyIntentService::class.java).apply {
+                action = ACTION_SUCCESS
+            }.also { intent1 ->
+                context?.startService(intent1)
             }
 
         } else {

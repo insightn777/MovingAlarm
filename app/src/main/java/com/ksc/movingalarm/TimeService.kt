@@ -24,6 +24,7 @@ class TimeService : Service() {
     internal class ServiceHandler(service: TimeService) : Handler() {
         private val mService = WeakReference<TimeService>(service).get()
         override fun handleMessage(msg: Message) {
+            Log.e("BUTTON","PUSH")
             when (msg.what) {
                 BIND_START -> mService?.startBindService(msg.replyTo)
                 FORE_START -> mService?.startForegroundService1()
@@ -165,13 +166,20 @@ class TimeService : Service() {
                 if (success) break
             }
 
-            if (success) {
-                // 서버에 실패 전송
-            } else {
-                // 서버에 성공 전송
-            }
-            Log.e("T_success", "$success")
             stopForeground(true)
+
+            if (success) {
+                // 서버에 성공 전송
+                Log.e("T_success", "$success")
+            } else {
+                // 서버에 실패 전송
+                Intent(applicationContext, MyIntentService::class.java).apply {
+                    action = ACTION_FAIL
+                }.also { intent1 ->
+                    startService(intent1)
+                }
+            }
+
         }
     }
 }

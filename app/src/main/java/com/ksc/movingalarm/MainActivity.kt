@@ -59,14 +59,16 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPicker.OnValu
 
     override fun onMapReady(map: GoogleMap) {
         Log.e("map", "ready")
-        myMap.mMap = map
-        map.setOnMapLongClickListener {
-            myAlarm.longitude = it.longitude
-            myAlarm.latitude = it.latitude
-            myMap.destMarker.position = it
+        with (myMap) {
+            mMap = map.apply {
+                setOnMapLongClickListener {
+                    myAlarm.longitude = it.longitude
+                    myAlarm.latitude = it.latitude
+                    myMap.moveMarker(it)
+                }
+            }
+            checkPermission(myAlarm.latitude, myAlarm.longitude)
         }
-        myMap.createLocationRequest()
-        myMap.checkPermission(myAlarm.latitude, myAlarm.longitude)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -138,27 +140,27 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPicker.OnValu
         NumberPickerFragment(this).show(supportFragmentManager,"number")
     }
 
-    inner class NumberPickerDialog() : AlertDialog(this) {
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            val numberPicker = NumberPicker(this@MainActivity).apply {
-                value = 10
-                minValue = 1
-                maxValue = 60
-                setOnValueChangedListener(this@MainActivity)
-                descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
-            }
-
-            val dialog = AlertDialog.Builder(this@MainActivity)
-                .setTitle("Limit Time")
-                .setView(numberPicker)
-                .setPositiveButton("SET",DialogInterface.OnClickListener { dialog, which ->
-                    dismiss()
-                })
-
-            return dialog.create().show()
-        }
-    }
+//    inner class NumberPickerDialog() : AlertDialog(this) {
+//        override fun onCreate(savedInstanceState: Bundle?) {
+//            super.onCreate(savedInstanceState)
+//            val numberPicker = NumberPicker(this@MainActivity).apply {
+//                value = 10
+//                minValue = 1
+//                maxValue = 60
+//                setOnValueChangedListener(this@MainActivity)
+//                descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
+//            }
+//
+//            val dialog = AlertDialog.Builder(this@MainActivity)
+//                .setTitle("Limit Time")
+//                .setView(numberPicker)
+//                .setPositiveButton("SET",DialogInterface.OnClickListener { dialog, which ->
+//                    dismiss()
+//                })
+//
+//            return dialog.create().show()
+//        }
+//    }
 
     class NumberPickerFragment(private val activity: MainActivity) : DialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
