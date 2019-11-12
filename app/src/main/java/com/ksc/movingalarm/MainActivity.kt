@@ -66,6 +66,7 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPicker.OnValu
                     myAlarm.latitude = it.latitude
                     myMap.moveMarker(it)
                 }
+                uiSettings.isMyLocationButtonEnabled = true
             }
             checkPermission(myAlarm.latitude, myAlarm.longitude)
         }
@@ -213,6 +214,7 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPicker.OnValu
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == GPS_ON) {
             if (resultCode == Activity.RESULT_OK) {
                 Log.e("result","ok")
@@ -225,10 +227,13 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPicker.OnValu
     }
 
     fun test(view: View) {
-        Intent(this, TimeService::class.java).also { intent ->
-            this.startService(intent)
-        }
-        Intent(this, AwakeActivity::class.java).also { intent ->
+//        Intent(this, TimeService::class.java).also { intent ->
+//            this.startService(intent)
+//        }
+//        Intent(this, AwakeActivity::class.java).also { intent ->
+//            this.startActivity(intent)
+//        }
+        Intent(this, ReportActivity::class.java).also { intent ->
             this.startActivity(intent)
         }
     }

@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.ksc.movingalarm.service.*
 import kotlinx.android.synthetic.main.activity_alarm.*
 import java.lang.ref.WeakReference
 

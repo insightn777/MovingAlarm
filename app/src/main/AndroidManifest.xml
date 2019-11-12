@@ -15,7 +15,7 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <service
-                android:name=".MyIntentService"
+                android:name=".service.MyIntentService"
                 android:exported="false" />
 
         <activity android:name=".ReportActivity" />
@@ -35,7 +35,7 @@
         </activity>
 
         <service
-                android:name=".TimeService"
+                android:name=".service.TimeService"
                 android:exported="false" />
 
         <receiver android:name=".AlarmReceiver" />

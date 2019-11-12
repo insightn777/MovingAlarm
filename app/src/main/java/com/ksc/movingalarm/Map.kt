@@ -19,6 +19,8 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.ksc.movingalarm.service.ACTION_SUCCESS
+import com.ksc.movingalarm.service.MyIntentService
 
 const val GPS_ON = 123
 
@@ -34,8 +36,8 @@ class Map (private val activity: Activity) {
     fun createLocationRequest() {
 
         val locationRequest = LocationRequest.create().apply {
-            interval = 10000
-            fastestInterval = 5000
+            interval = 100000
+            fastestInterval = 50000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 
@@ -92,6 +94,8 @@ class Map (private val activity: Activity) {
             if (location == null) {
                 Log.e("location","fail")
             } else {
+                mMap.isMyLocationEnabled = true
+
                 if (pos.latitude * pos.longitude < 1 ) // 초기값 0 0 이 들어있으면 장치 현재 위치 아니면 마커 위치로
                     pos = LatLng(location.latitude, location.longitude)
 

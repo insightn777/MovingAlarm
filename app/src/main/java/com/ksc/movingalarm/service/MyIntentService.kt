@@ -1,4 +1,4 @@
-package com.ksc.movingalarm
+package com.ksc.movingalarm.service
 
 import android.app.IntentService
 import android.content.ComponentName
@@ -9,6 +9,10 @@ import android.os.IBinder
 import android.os.Message
 import android.os.Messenger
 import android.util.Log
+import com.ksc.movingalarm.Alarm
+import com.ksc.movingalarm.data.Record
+import com.ksc.movingalarm.data.RecordRoomDatabase
+import java.util.*
 
 const val ACTION_FAIL = "com.ksc.movingalarm.action.FAIL"
 const val ACTION_SUCCESS = "com.ksc.movingalarm.action.SUCCESS"
@@ -26,11 +30,10 @@ class MyIntentService : IntentService("MyIntentService") {
         }
         when (intent.action) {
             ACTION_FAIL -> {
-
-                handleActionFAIL()
+                handleAction(false)
             }
             ACTION_SUCCESS -> {
-//                handleActionSUCCESS(param1, param2)
+                handleAction(true)
             }
         }
     }
@@ -61,12 +64,19 @@ class MyIntentService : IntentService("MyIntentService") {
         }
     }
 
-    private fun handleActionFAIL() {
-
-    }
-
-    private fun handleActionSUCCESS(param1: String, param2: String) {
-
+    private fun handleAction(success: Boolean) {
+        val alarm = Alarm(applicationContext)
+        val calendar = Calendar.getInstance()
+        val newRecord = Record(
+            null,
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DATE),
+            if (success) alarm.hour else 0,
+            if (success) alarm.minute else 0,
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE)
+            )
+        RecordRoomDatabase.add(this,newRecord)
     }
 
     override fun onDestroy() {

@@ -47,7 +47,7 @@
             android:id="@+id/count_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text="0:00"
             app:layout_constraintBottom_toTopOf="@+id/alarm_map"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

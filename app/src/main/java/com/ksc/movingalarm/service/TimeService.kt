@@ -1,4 +1,4 @@
-package com.ksc.movingalarm
+package com.ksc.movingalarm.service
 
 import android.app.*
 import android.content.Context
@@ -8,6 +8,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.ksc.movingalarm.AlarmActivity
+import com.ksc.movingalarm.R
 import java.lang.ref.WeakReference
 
 const val BIND_START = 1
