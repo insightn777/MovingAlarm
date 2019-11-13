@@ -15,7 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="@{String.valueOf(alarmRecord.month)}"
+            android:text='@{String.valueOf(alarmRecord.month + 1) + "/" + String.valueOf(alarmRecord.day)}'
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.09"
@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
-            android:text="@{String.valueOf(alarmRecord.id)}"
+            android:text='@{String.valueOf(alarmRecord.dHour) + (alarmRecord.dMinute>9?":":":0") + String.valueOf(alarmRecord.dMinute)}'
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/text_success"
             app:layout_constraintHorizontal_bias="0.423"
@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="48dp"
-            android:text="@{String.valueOf(alarmRecord.dHour)}"
+            android:text='@{String.valueOf(alarmRecord.hour) + (alarmRecord.Minute>9?":":":0") + String.valueOf(alarmRecord.minute)}'
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

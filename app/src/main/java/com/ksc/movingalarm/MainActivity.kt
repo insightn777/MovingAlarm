@@ -18,12 +18,12 @@ import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.ksc.movingalarm.service.TimeService
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 /*
     TO DO :
-        * GPS set
         * Alarm set
             1) Alarm on/off
             2) vibrator
@@ -227,13 +227,16 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPicker.OnValu
     }
 
     fun test(view: View) {
-//        Intent(this, TimeService::class.java).also { intent ->
-//            this.startService(intent)
-//        }
-//        Intent(this, AwakeActivity::class.java).also { intent ->
-//            this.startActivity(intent)
-//        }
-        Intent(this, ReportActivity::class.java).also { intent ->
+        Intent(this, TimeService::class.java).also { intent ->
+            this.startService(intent)
+        }
+        Intent(this, AwakeActivity::class.java).also { intent ->
+            this.startActivity(intent)
+        }
+    }
+
+    fun test2(view: View) {
+       Intent(this, ReportActivity::class.java).also { intent ->
             this.startActivity(intent)
         }
     }

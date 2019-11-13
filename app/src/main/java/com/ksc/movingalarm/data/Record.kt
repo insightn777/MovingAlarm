@@ -11,6 +11,7 @@ data class Record(
     val dHour :Int,
     val dMinute :Int,
     val hour :Int,
-    val minute :Int
-//    @ColumnInfo(name = "latLng")val latLng :LatLng
+    val minute :Int,
+    val latitude :Double,
+    val longitude :Double
 )

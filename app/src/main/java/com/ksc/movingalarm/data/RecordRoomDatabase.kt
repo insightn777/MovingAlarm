@@ -8,7 +8,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@Database(entities = arrayOf(Record::class), version = 1)
+@Database(entities = arrayOf(Record::class), version = 2)
 abstract class RecordRoomDatabase :RoomDatabase() {
 
     abstract fun recordDao(): RecordDao

@@ -181,7 +181,6 @@ class TimeService : Service() {
                     startService(intent1)
                 }
             }
-
         }
     }
 }

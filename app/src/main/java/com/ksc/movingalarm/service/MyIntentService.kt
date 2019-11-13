@@ -17,9 +17,6 @@ import java.util.*
 const val ACTION_FAIL = "com.ksc.movingalarm.action.FAIL"
 const val ACTION_SUCCESS = "com.ksc.movingalarm.action.SUCCESS"
 
-private const val EXTRA_PARAM1 = "com.ksc.movingalarm.extra.PARAM1"
-private const val EXTRA_PARAM2 = "com.ksc.movingalarm.extra.PARAM2"
-
 class MyIntentService : IntentService("MyIntentService") {
 
     override fun onHandleIntent(intent: Intent) {
@@ -71,10 +68,12 @@ class MyIntentService : IntentService("MyIntentService") {
             null,
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DATE),
-            if (success) alarm.hour else 0,
-            if (success) alarm.minute else 0,
-            calendar.get(Calendar.HOUR_OF_DAY),
-            calendar.get(Calendar.MINUTE)
+            alarm.hour,
+            alarm.minute,
+            if (success) calendar.get(Calendar.HOUR_OF_DAY) else 0,
+            if (success) calendar.get(Calendar.MINUTE) else 0,
+            alarm.latitude,
+            alarm.longitude
             )
         RecordRoomDatabase.add(this,newRecord)
     }

@@ -1,5 +1,7 @@
 package com.ksc.movingalarm
 
+import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -25,6 +27,10 @@ class ReportActivity : AppCompatActivity() {
 
         val adapter = RecordListAdapter() {
             Toast.makeText(this@ReportActivity,"$it",Toast.LENGTH_SHORT).show()
+            val mapIntent = Intent(Intent.ACTION_VIEW,
+                Uri.parse("geo:${it.latitude},${it.longitude}"))
+            mapIntent.setPackage("com.google.android.apps.maps")
+            startActivity(mapIntent)
         }
         recycler_view.adapter = adapter
         recycler_view.layoutManager = LinearLayoutManager(this@ReportActivity)

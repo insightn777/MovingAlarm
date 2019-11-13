@@ -49,7 +49,7 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
     fun setCount(int: Int) {
         m = int/60
         s = int%60
-        count_view.text = "${m}:${s}"
+        count_view.text = "${m}:" + if (s>9) "$s" else "0$s"
     }
 
     class ActivityHandler(activity: AlarmActivity) : Handler() {
@@ -135,7 +135,7 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
         Log.e("map", "ready")
         myMap.mMap = map
         myMap.checkPermission(myAlarm.latitude, myAlarm.longitude)
-        myMap.addGeofence(myAlarm.latitude, myAlarm.longitude, myAlarm.limitTime)
+        myMap. addGeofence(myAlarm.latitude, myAlarm.longitude, myAlarm.limitTime)
     }
 
     private var finished = false

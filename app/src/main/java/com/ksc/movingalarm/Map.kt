@@ -126,6 +126,7 @@ class Map (private val activity: Activity) {
         geoFencePendingIntent = PendingIntent.getBroadcast(activity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         val geoFencingRequest = GeofencingRequest.Builder().apply {
+            setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
             addGeofence(
                 Geofence.Builder()
                     // Set the request ID of the geofence. This is a string to identify this geofence.
@@ -134,13 +135,13 @@ class Map (private val activity: Activity) {
                     .setCircularRegion(
                         latitude,
                         longitude,
-                        20f
+                        50f
                     )
                     // Set the expiration duration of the geofence. This geofence gets automatically removed after this period of time.
                     .setExpirationDuration(limit * 60 * 1000L)
                     .setLoiteringDelay(2000)
                     // Set the transition types of interest. Alerts are only generated for these transition. We track entry and exit transitions in this sample.
-                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_DWELL)
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
                     // Create the geofence.
                     .build()
             )
@@ -196,9 +197,9 @@ class GeoFenceBroadcastReceiver : BroadcastReceiver() {
             return
         }
         // Get the transition type. Test that the reported transition was of interest.
-        if (geoFencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
-            geoFencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL ) {
+        if (geoFencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
             Log.e("geoFence", "arrive : ${geoFencingEvent.geofenceTransition}")
+
             Intent(context, MyIntentService::class.java).apply {
                 action = ACTION_SUCCESS
             }.also { intent1 ->
