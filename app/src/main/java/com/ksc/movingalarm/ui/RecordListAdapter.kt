@@ -1,8 +1,9 @@
-package com.ksc.movingalarm
+package com.ksc.movingalarm.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.ksc.movingalarm.R
 import com.ksc.movingalarm.data.Record
 import com.ksc.movingalarm.databinding.ItemRecordBinding
 
@@ -15,7 +16,10 @@ class RecordListAdapter internal constructor(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecordViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_record, parent, false)
-        val viewHolder = RecordViewHolder(ItemRecordBinding.bind(view))
+        val viewHolder =
+            RecordViewHolder(
+                ItemRecordBinding.bind(view)
+            )
         view.setOnClickListener {
             clickListener.invoke(records[viewHolder.adapterPosition])
         }

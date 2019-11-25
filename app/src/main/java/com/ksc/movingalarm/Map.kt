@@ -46,18 +46,18 @@ class Map (private val activity: Activity) {
             .setAlwaysShow(true)
 
         val task = LocationServices.getSettingsClient(activity).checkLocationSettings(builder.build())
-            .addOnSuccessListener {
-                initLocation()
-            }
-            .addOnFailureListener {
-            if (it is ResolvableApiException) {
-                try {
-                    it.startResolutionForResult(activity, GPS_ON)
-                } catch (sendEx: IntentSender.SendIntentException) {
+                    .addOnSuccessListener {
+                        initLocation()
+                    }
+                    .addOnFailureListener {
+                        if (it is ResolvableApiException) {
+                            try {
+                                it.startResolutionForResult(activity, GPS_ON)
+                            } catch (sendEx: IntentSender.SendIntentException) {
 
-                }
-            }
-        }
+                            }
+                        }
+                    }
     }
 
     fun checkPermission(latitude: Double, longitude: Double) {
@@ -107,7 +107,7 @@ class Map (private val activity: Activity) {
                         .position(pos)
                         .title("destination")
                 )
-                Log.e("Marker","${mMarker.id}")
+                Log.e("Marker", mMarker.id)
 
             }
         }
@@ -115,7 +115,7 @@ class Map (private val activity: Activity) {
 
     fun moveMarker(latLng: LatLng) {
         mMarker.position = latLng
-        Log.e("Marker","${mMarker.id}")
+        Log.e("Marker", mMarker.id)
     }
 
 

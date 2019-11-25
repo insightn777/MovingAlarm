@@ -1,9 +1,12 @@
-package com.ksc.movingalarm.data
+package com.ksc.movingalarm.ui
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
+import com.ksc.movingalarm.data.Record
+import com.ksc.movingalarm.data.RecordDao
+import com.ksc.movingalarm.data.RecordRoomDatabase
 import kotlinx.coroutines.launch
 
 
@@ -21,7 +24,9 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     val allrecords: LiveData<List<Record>>
 
     init {
-        val recordDao = RecordRoomDatabase.getDatabase(application/*, viewModelScope*/).recordDao()
+        val recordDao = RecordRoomDatabase.getDatabase(
+            application/*, viewModelScope*/
+        ).recordDao()
         repository = RecordRepository(recordDao)
         allrecords = repository.allRecords
     }
