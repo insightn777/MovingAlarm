@@ -25,6 +25,10 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
     Service Connect
      ***************/
 
+    private val mySharedPreferences by lazy {
+        getSharedPreferences(applicationContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+    }
+
     private lateinit var mService: Messenger
 
     private val mConnection = object : ServiceConnection {
@@ -87,8 +91,6 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
         }.also { intent1 ->
             startService(intent1)
         }
-
-        finished = true
     }
 
     /***************
@@ -110,8 +112,15 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
 
     override fun onResume() {
         super.onResume()
-        Intent(this, TimeService::class.java).also { intent ->
-            bindService(intent, mConnection, Context.BIND_ABOVE_CLIENT)
+        val runService = mySharedPreferences.getBoolean("run",true)
+        if (!runService) {
+            finish()
+            Intent(this, ReportActivity::class.java).also {
+                startActivity(it)
+            }
+        }
+        Intent(this, TimeService::class.java).also {
+            bindService(it, mConnection, Context.BIND_ABOVE_CLIENT)
         }
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(316)
@@ -120,7 +129,8 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
     override fun onPause() {
         Log.e("PAUSE","PAUSE")
         // unbindService 빼먹으면 오류남 // onBind unBind 는 한번만 호출됨 왠지는 모름 ㅎ
-        if (!finished) {
+        val runService = mySharedPreferences.getBoolean("run",true)
+        if (runService) {
             val msg = Message().apply {
                 what = FORE_START
                 replyTo = mActivityMessenger
@@ -147,9 +157,6 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
         myMap.checkPermission(myAlarm.latitude, myAlarm.longitude)
         myMap. addGeofence(myAlarm.latitude, myAlarm.longitude, myAlarm.limitTime)
     }
-
-    private var finished = false
-
 
 //    val br = object : BroadcastReceiver() {
 //        override fun onReceive(context: Context, intent: Intent) {

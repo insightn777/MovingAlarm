@@ -21,6 +21,9 @@ class TimeService : Service() {
     var success = false
     var mBound = false
     private lateinit var mMessenger : Messenger
+    private val mySharedPreferences by lazy {
+        getSharedPreferences(applicationContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+    }
 
     internal class ServiceHandler(service: TimeService) : Handler() {
         private val mService = WeakReference<TimeService>(service).get()
@@ -44,10 +47,10 @@ class TimeService : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        with (applicationContext) {
-            val sharedPreferences = this.getSharedPreferences(applicationContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-            remainTime = sharedPreferences.getInt(this.getString(R.string.limitTime_key),0) * 60
-        }
+        remainTime = mySharedPreferences.getInt(this.getString(R.string.limitTime_key),0) * 60
+        mySharedPreferences.edit()
+            .putBoolean("run",true)
+            .apply()
         startForegroundService1()
         remainTimeThread.start()
 
@@ -101,6 +104,9 @@ class TimeService : Service() {
     }
 
     override fun onDestroy() {
+        mySharedPreferences.edit()
+            .putBoolean("run",false)
+            .apply()
         success = true
         stopForeground(true)
     }
