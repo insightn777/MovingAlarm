@@ -20,9 +20,6 @@ const val ACTION_SUCCESS = "com.ksc.movingalarm.action.SUCCESS"
 class MyIntentService : IntentService("MyIntentService") {
 
     override fun onHandleIntent(intent: Intent) {
-        Intent(this, TimeService::class.java).also { intent1 ->
-            bindService(intent1, mConnection, Context.BIND_AUTO_CREATE)
-        }
         when (intent.action) {
             ACTION_FAIL -> {
                 handleAction(false)
@@ -33,33 +30,14 @@ class MyIntentService : IntentService("MyIntentService") {
         }
     }
 
-    fun sendMessege () {
-        val msg = Message().apply {
-            what = SERVICE_STOP
-        }
-        mService.send(msg)
-    }
-
-    private var mBound = false
-    private lateinit var mService: Messenger
-
-    private val mConnection = object : ServiceConnection {
-
-        override fun onServiceConnected(className: ComponentName, binder: IBinder) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            Log.e("IntentService", "ON_BIND")
-            mService = Messenger(binder)
-            mBound = true
-            sendMessege()
-        }
-
-        override fun onServiceDisconnected(arg0: ComponentName) {
-            Log.e("IntentService", "UN_BIND")
-            mBound = false
-        }
-    }
-
     private fun handleAction(success: Boolean) {
+
+        Intent(this, TimeService::class.java).apply {
+            putExtra("success",success)
+        }.also {
+            stopService(it)
+        }
+
         val alarm = Alarm(applicationContext)
         val calendar = Calendar.getInstance()
         val newRecord = Record(
@@ -74,9 +52,5 @@ class MyIntentService : IntentService("MyIntentService") {
             alarm.longitude
             )
         RecordRoomDatabase.add(this,newRecord)
-    }
-
-    override fun onDestroy() {
-        unbindService(mConnection)
     }
 }

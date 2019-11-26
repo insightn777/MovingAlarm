@@ -14,7 +14,6 @@ import java.lang.ref.WeakReference
 
 const val BIND_START = 1
 const val FORE_START = 2
-const val SERVICE_STOP = 3
 
 class TimeService : Service() {
 
@@ -30,15 +29,14 @@ class TimeService : Service() {
             when (msg.what) {
                 BIND_START -> mService?.startBindService(msg.replyTo)
                 FORE_START -> mService?.startForegroundService1()
-                SERVICE_STOP -> mService?.stopthis()
                 else -> super.handleMessage(msg)
             }
         }
     }
 
-    fun stopthis() {
-        success = true
-        stopSelf()
+    override fun stopService(name: Intent?): Boolean {
+        success = name!!.getBooleanExtra("success",false)
+        return super.stopService(name)
     }
 
     override fun onCreate() {
@@ -52,7 +50,6 @@ class TimeService : Service() {
         }
         startForegroundService1()
         remainTimeThread.start()
-        Toast.makeText(this, "Start Service", Toast.LENGTH_SHORT).show()
 
         return START_STICKY
     }
@@ -66,8 +63,7 @@ class TimeService : Service() {
         stopForeground(true)
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        stopForeground(true)
+    override fun onBind(intent: Intent?): IBinder? {         // onBind 는 bind 할때마다 호출되지 않음
         mMessenger = Messenger(ServiceHandler(this))
         return mMessenger.binder
     }
@@ -105,6 +101,7 @@ class TimeService : Service() {
     }
 
     override fun onDestroy() {
+        success = true
         stopForeground(true)
     }
 
@@ -160,15 +157,13 @@ class TimeService : Service() {
                     else {
                         runFore(remainTime)
                     }
-                    Thread.sleep(1000)
+                    sleep(1000)
                 } catch (e: InterruptedException) {
-                    Thread.currentThread().interrupt()
+                    interrupt()
                     Log.e("Thread", "$e")
                 }
                 if (success) break
             }
-
-            stopForeground(true)
 
             if (success) {
                 // IntentService 에서 성공 처리
@@ -177,8 +172,8 @@ class TimeService : Service() {
                 // 실패 처리
                 Intent(applicationContext, MyIntentService::class.java).apply {
                     action = ACTION_FAIL
-                }.also { intent1 ->
-                    startService(intent1)
+                }.also {
+                    startService(it)
                 }
             }
         }
