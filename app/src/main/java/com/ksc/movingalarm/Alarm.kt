@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.os.PowerManager
 import android.util.Log
 import com.ksc.movingalarm.service.TimeService
+import com.ksc.movingalarm.ui.AwakeActivity
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*

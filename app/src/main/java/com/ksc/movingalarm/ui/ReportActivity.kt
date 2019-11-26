@@ -1,4 +1,4 @@
-package com.ksc.movingalarm
+package com.ksc.movingalarm.ui
 
 import android.content.Intent
 import android.net.Uri
@@ -8,8 +8,7 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.ksc.movingalarm.ui.RecordViewModel
-import com.ksc.movingalarm.ui.RecordListAdapter
+import com.ksc.movingalarm.R
 import kotlinx.android.synthetic.main.activity_report.*
 
 class ReportActivity : AppCompatActivity() {

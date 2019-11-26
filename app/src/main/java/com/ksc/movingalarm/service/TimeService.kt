@@ -8,7 +8,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.ksc.movingalarm.AlarmActivity
+import com.ksc.movingalarm.ui.AlarmActivity
 import com.ksc.movingalarm.R
 import java.lang.ref.WeakReference
 

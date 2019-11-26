@@ -20,6 +20,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/floatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="startReportActivity"
+            android:src="@drawable/ic_schedule_black_24dp"
+            app:backgroundTint="@color/common_google_signin_btn_text_light_disabled"
+            app:fabSize="mini"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:maxImageSize="32dp" />
+
     <View
             android:id="@+id/divider"
             android:layout_width="370dp"
@@ -95,8 +111,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/divider2"
-            app:layout_constraintVertical_bias="0.18"
-            android:onClick="test2"/>
+            app:layout_constraintVertical_bias="0.18" />
 
     <TextView
             android:id="@+id/sun"

@@ -18,14 +18,14 @@
                 android:name=".service.MyIntentService"
                 android:exported="false" />
 
-        <activity android:name=".ReportActivity" />
-        <activity android:name=".AwakeActivity" />
+        <activity android:name=".ui.ReportActivity" />
+        <activity android:name=".ui.AwakeActivity" />
 
         <meta-data
                 android:name="com.google.android.geo.API_KEY"
                 android:value="AIzaSyAX2YLhaGn2GdNBwJbJGi20liW3b4mFtQs" />
 
-        <activity android:name=".AlarmActivity" />
+        <activity android:name=".ui.AlarmActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

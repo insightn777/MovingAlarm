@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -19,8 +20,12 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.ksc.movingalarm.service.TimeService
+import com.ksc.movingalarm.ui.AwakeActivity
+import com.ksc.movingalarm.ui.ReportActivity
 import kotlinx.android.synthetic.main.activity_main.*
+import java.lang.ClassCastException
 import java.util.*
+import javax.xml.transform.ErrorListener
 
 /*
     TO DO :
@@ -32,7 +37,7 @@ import java.util.*
 
 const val MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 11
 
-class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPicker.OnValueChangeListener {
+class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPickerFragment.NumberListener {
 
     private val daysID :Array<Int> by lazy {
         arrayOf(R.id.sun, R.id.mon, R.id.tue, R.id.wed, R.id.thu, R.id.fri, R.id.sat)
@@ -101,9 +106,12 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPicker.OnValu
 
     override fun onResume() {
         super.onResume()
-
-        set_time.text = "${myAlarm.hour} " + if (myAlarm.minute < 10 ) ": 0${myAlarm.minute}" else ": ${myAlarm.minute}"
-        limit_time.text = "${myAlarm.limitTime}m"
+        if (myAlarm.minute < 10 ) {
+            set_time.text = String.format("%d : 0%d", myAlarm.hour,myAlarm.minute)
+        } else {
+            set_time.text = String.format("%d : %d", myAlarm.hour,myAlarm.minute)
+        }
+        limit_time.text = String.format("%d min",myAlarm.limitTime)
 
         for (i in 0..6) {
             if (myAlarm.dayCheck[i]) {
@@ -128,7 +136,11 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPicker.OnValu
             TimePickerDialog.OnTimeSetListener { _, hourOfDay, minutes ->
                 myAlarm.hour = hourOfDay
                 myAlarm.minute = minutes
-                set_time.text = "${myAlarm.hour} " + if (myAlarm.minute < 10 ) ": 0${myAlarm.minute}" else ": ${myAlarm.minute}"
+                if (myAlarm.minute < 10 ) {
+                    set_time.text = String.format("%d : 0%d", myAlarm.hour,myAlarm.minute)
+                } else {
+                    set_time.text = String.format("%d : %d", myAlarm.hour,myAlarm.minute)
+                }
             },
             c.get(Calendar.HOUR_OF_DAY),
             c.get(Calendar.MINUTE),
@@ -140,6 +152,13 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPicker.OnValu
     fun showNumberPickerDialog(view: View) {
         NumberPickerFragment(this).show(supportFragmentManager,"number")
     }
+
+    override fun onDialogPositiveClick(dialog: DialogFragment, limitTime: Int) {
+        limit_time.text = String.format("%d min", limitTime)
+        myAlarm.limitTime = limitTime
+    }
+
+
 
 //    inner class NumberPickerDialog() : AlertDialog(this) {
 //        override fun onCreate(savedInstanceState: Bundle?) {
@@ -163,34 +182,12 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPicker.OnValu
 //        }
 //    }
 
-    class NumberPickerFragment(private val activity: MainActivity) : DialogFragment() {
-        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            val numberPicker = NumberPicker(activity).apply {
-                value = 10
-                minValue = 1
-                maxValue = 60
-                setOnValueChangedListener(activity)
-                descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
-                scaleX = 1.5f
-                scaleY = 1.5f
-                scrollBarSize = 2
-            }
-            return activity.let {
-                val builder = AlertDialog.Builder(it)
-                builder.setMessage("Limit Time")
-                    .setPositiveButton("SET",DialogInterface.OnClickListener { dialog, which ->
-                        dismiss()
-                    })
-                    .setView(numberPicker)
-                builder.create()
-            }
-        }
-    }
 
-    override fun onValueChange(picker: NumberPicker?, oldVal: Int, newVal: Int) {
-        limit_time.text = "$newVal"
-        myAlarm.limitTime = newVal
-    }
+
+//    override fun onValueChange(picker: NumberPicker?, oldVal: Int, newVal: Int) {
+////        limit_time.text = String.format("%d min",newVal)
+////        myAlarm.limitTime = newVal
+//    }
 
     fun setDays (view: View) {
         var day = -1
@@ -235,11 +232,50 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPicker.OnValu
         }
     }
 
-    fun test2(view: View) {
+    fun startReportActivity(view: View) {
        Intent(this, ReportActivity::class.java).also { intent ->
             this.startActivity(intent)
         }
     }
 
 
+}
+
+class NumberPickerFragment(private val activity: MainActivity) : DialogFragment() {
+    internal lateinit var listener: NumberListener
+
+    interface NumberListener {
+        fun onDialogPositiveClick(dialog: DialogFragment, limitTime: Int)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        try {
+            listener = context as NumberListener
+        } catch (e: ClassCastException) {
+            throw ClassCastException((context.toString() + " must implement NumberLister"))
+        }
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val numberPicker = NumberPicker(activity).apply {
+            value = 10
+            minValue = 1
+            maxValue = 60
+            descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
+            scaleX = 1.5f
+            scaleY = 1.5f
+            scrollBarSize = 2
+        }
+        return activity.let {
+            val builder = AlertDialog.Builder(it)
+            builder.setMessage("Limit Time")
+                .setPositiveButton("SET"
+                ) { _, _ ->
+                    listener.onDialogPositiveClick(this,numberPicker.value)
+                }
+                .setView(numberPicker)
+            builder.create()
+        }
+    }
 }

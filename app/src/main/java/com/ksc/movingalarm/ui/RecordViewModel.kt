@@ -25,7 +25,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     init {
         val recordDao = RecordRoomDatabase.getDatabase(
-            application/*, viewModelScope*/
+            application //, viewModelScope
         ).recordDao()
         repository = RecordRepository(recordDao)
         allrecords = repository.allRecords

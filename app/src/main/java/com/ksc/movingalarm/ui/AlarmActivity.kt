@@ -1,4 +1,4 @@
-package com.ksc.movingalarm
+package com.ksc.movingalarm.ui
 
 import android.app.NotificationManager
 import android.content.*
@@ -9,6 +9,9 @@ import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.ksc.movingalarm.Alarm
+import com.ksc.movingalarm.Map
+import com.ksc.movingalarm.R
 import com.ksc.movingalarm.service.*
 import kotlinx.android.synthetic.main.activity_alarm.*
 import java.lang.ref.WeakReference
@@ -59,7 +62,11 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
         }
     }
 
-    private val mActivityMessenger = Messenger(ActivityHandler(this))
+    private val mActivityMessenger = Messenger(
+        ActivityHandler(
+            this
+        )
+    )
 
     fun arriveDest (view: View) {
         if ( arrive ) {
@@ -125,7 +132,7 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
      Map
     ***********/
 
-    private val myAlarm :Alarm by lazy {
+    private val myAlarm : Alarm by lazy {
         Alarm(this)
     }
     private val myMap = Map(this)
