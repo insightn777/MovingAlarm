@@ -1,7 +1,10 @@
 package com.ksc.movingalarm.ui
 
 import android.app.NotificationManager
-import android.content.*
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.*
 import android.util.Log
 import android.view.View
@@ -52,7 +55,11 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
     fun setCount(int: Int) {
         m = int/60
         s = int%60
-        count_view.text = "${m}:" + if (s>9) "$s" else "0$s"
+        if (s>9) {
+            count_view.text = String.format("%d:%d",m,s)
+        } else {
+            count_view.text = String.format("%d:0%d",m,s)
+        }
     }
 
     class ActivityHandler(activity: AlarmActivity) : Handler() {
@@ -74,10 +81,6 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
             // 서버로 도착 전송
             finish()
         }
-//        val msg = Message().apply {
-//            what = SERVICE_STOP
-//        }
-//        mService.send(msg)
 
         Intent(this, MyIntentService::class.java).apply {
             action = ACTION_FAIL
