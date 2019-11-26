@@ -1,7 +1,7 @@
 package com.ksc.movingalarm.data
 
-import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 @Entity(tableName = "record_table")
 data class Record(

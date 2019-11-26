@@ -158,37 +158,6 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPickerFragmen
         myAlarm.limitTime = limitTime
     }
 
-
-
-//    inner class NumberPickerDialog() : AlertDialog(this) {
-//        override fun onCreate(savedInstanceState: Bundle?) {
-//            super.onCreate(savedInstanceState)
-//            val numberPicker = NumberPicker(this@MainActivity).apply {
-//                value = 10
-//                minValue = 1
-//                maxValue = 60
-//                setOnValueChangedListener(this@MainActivity)
-//                descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
-//            }
-//
-//            val dialog = AlertDialog.Builder(this@MainActivity)
-//                .setTitle("Limit Time")
-//                .setView(numberPicker)
-//                .setPositiveButton("SET",DialogInterface.OnClickListener { dialog, which ->
-//                    dismiss()
-//                })
-//
-//            return dialog.create().show()
-//        }
-//    }
-
-
-
-//    override fun onValueChange(picker: NumberPicker?, oldVal: Int, newVal: Int) {
-////        limit_time.text = String.format("%d min",newVal)
-////        myAlarm.limitTime = newVal
-//    }
-
     fun setDays (view: View) {
         var day = -1
         when (view.id) {

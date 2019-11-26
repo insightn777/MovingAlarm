@@ -171,10 +171,10 @@ class TimeService : Service() {
             stopForeground(true)
 
             if (success) {
-                // 서버에 성공 전송
+                // IntentService 에서 성공 처리
                 Log.e("T_success", "$success")
             } else {
-                // 서버에 실패 전송
+                // 실패 처리
                 Intent(applicationContext, MyIntentService::class.java).apply {
                     action = ACTION_FAIL
                 }.also { intent1 ->

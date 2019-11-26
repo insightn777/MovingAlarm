@@ -20,8 +20,6 @@ const val ACTION_SUCCESS = "com.ksc.movingalarm.action.SUCCESS"
 class MyIntentService : IntentService("MyIntentService") {
 
     override fun onHandleIntent(intent: Intent) {
-//        val param1 = intent.getStringExtra(EXTRA_PARAM1)
-//        val param2 = intent.getStringExtra(EXTRA_PARAM2)
         Intent(this, TimeService::class.java).also { intent1 ->
             bindService(intent1, mConnection, Context.BIND_AUTO_CREATE)
         }
