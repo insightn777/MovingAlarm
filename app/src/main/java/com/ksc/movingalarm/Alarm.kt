@@ -15,7 +15,10 @@ import java.util.*
 
 class Alarm(private val context: Context) {
 
-    private val sharedPref = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+    private val sharedPref = context.getSharedPreferences(
+        context.getString(R.string.preference_file_key),
+        Context.MODE_PRIVATE
+    )
 
     val dayCheck = BooleanArray(7)
     private val daysOfWeek = arrayOf(
@@ -27,44 +30,36 @@ class Alarm(private val context: Context) {
         context.getString(R.string.friday),
         context.getString(R.string.saturday)
     )
-    var hour = sharedPref.getInt(context.getString(R.string.hour_key),0)
-    var minute = sharedPref.getInt(context.getString(R.string.minute_key),0)
+    var hour = sharedPref.getInt(context.getString(R.string.hour_key), 0)
+    var minute = sharedPref.getInt(context.getString(R.string.minute_key), 0)
     private var triggerTime = 0L
-    var onOFF = sharedPref.getBoolean(context.getString(R.string.onOFF_key),false)
-    var latitude = sharedPref.getString(context.getString(R.string.latitude_key),"0").toDouble()
-    var longitude = sharedPref.getString(context.getString(R.string.longitude_key),"0").toDouble()
-    var limitTime = sharedPref.getInt(context.getString(R.string.limitTime_key),0)
+    var onOFF = sharedPref.getBoolean(context.getString(R.string.onOFF_key), false)
+    var latitude = sharedPref.getString(context.getString(R.string.latitude_key), "0").toDouble()
+    var longitude = sharedPref.getString(context.getString(R.string.longitude_key), "0").toDouble()
+    var limitTime = sharedPref.getInt(context.getString(R.string.limitTime_key), 0)
 
     init {
         for (i in 0..6) {
-            dayCheck[i] = sharedPref.getBoolean(daysOfWeek[i],false)
+            dayCheck[i] = sharedPref.getBoolean(daysOfWeek[i], false)
         }
     }
 
-    fun save () {
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
-            set(Calendar.SECOND, 0)
-        }
-
-        triggerTime = calendar.timeInMillis
-
-        with (sharedPref.edit()) {
+    fun save() {
+        with(sharedPref.edit()) {
             putInt(context.getString(R.string.hour_key), hour)
             putInt(context.getString(R.string.minute_key), minute)
             putInt(context.getString(R.string.limitTime_key), limitTime)
             for (i in 0..6) {
                 putBoolean(daysOfWeek[i], dayCheck[i])
             }
-            putString(context.getString(R.string.latitude_key),latitude.toString())
-            putString(context.getString(R.string.longitude_key),longitude.toString())
-            putBoolean(context.getString(R.string.onOFF_key),onOFF)
+            putString(context.getString(R.string.latitude_key), latitude.toString())
+            putString(context.getString(R.string.longitude_key), longitude.toString())
+            putBoolean(context.getString(R.string.onOFF_key), onOFF)
             commit()
         }
 
         if (onOFF) {
-            setAlarm()
+            setAlarm(0)
         } else {
             alarmMgr.cancel(alarmIntent)
 
@@ -84,15 +79,18 @@ class Alarm(private val context: Context) {
         PendingIntent.getBroadcast(context, 0, it, PendingIntent.FLAG_CANCEL_CURRENT)
     }
 
-    private fun setAlarm () {
+    private fun setAlarm(after: Int) {
 
-        alarmMgr.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            triggerTime,
-            AlarmManager.INTERVAL_DAY,
-//            60 * 1000,
-            alarmIntent
-        )
+        val calendar = Calendar.getInstance()
+        val now = calendar.timeInMillis
+        calendar.apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+        }
+        val nextDay = if (after == 0 && calendar.timeInMillis < now) 1 else 0
+        triggerTime = calendar.timeInMillis + (after + nextDay) * AlarmManager.INTERVAL_DAY
+
+        alarmMgr.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, alarmIntent)
 
         // REBOOT ENABLE
         val receiver = ComponentName(context, BootReceiver::class.java)
@@ -101,15 +99,9 @@ class Alarm(private val context: Context) {
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
             PackageManager.DONT_KILL_APP
         )
-
     } // setAlarm()
-
 }
 
-//    alarmMgr.setAlarmClock(
-//        AlarmManager.AlarmClockInfo(triggerTime, alarmIntent),
-//        alarmIntent
-//    )
 //    fun showAlarm() :Long {
 //        return alarmMgr.nextAlarmClock.triggerTime
 //    }
@@ -137,18 +129,14 @@ class AlarmReceiver : BroadcastReceiver() {
             context.getString(R.string.friday),
             context.getString(R.string.saturday)
         )
-       Log.e("receive", "Alarm time: ")
 
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-
         val wakeLock = powerManager.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
             "MovingAlarm:WAKELOCK"
         )
         wakeLock.acquire(60000)
-
-       if ( sharedPref.getBoolean(daysOfWeek[calendar.get(Calendar.DAY_OF_WEEK) - 1],false) ) runAlarm(context)
-
+        runAlarm(context)
     }
 
     private fun runAlarm (context: Context) {
