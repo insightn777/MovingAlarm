@@ -20,7 +20,6 @@ class ReportActivity : AppCompatActivity() {
         setContentView(R.layout.activity_report)
 
         val adapter = RecordListAdapter() {
-            Toast.makeText(this@ReportActivity, "$it", Toast.LENGTH_SHORT).show()
             val mapIntent = Intent(
                 Intent.ACTION_VIEW,
                 Uri.parse("geo:${it.latitude},${it.longitude}")
@@ -29,7 +28,7 @@ class ReportActivity : AppCompatActivity() {
             startActivity(mapIntent)
         }
         recycler_view.adapter = adapter
-        recycler_view.layoutManager = LinearLayoutManager(this@ReportActivity)
+        recycler_view.layoutManager = LinearLayoutManager(this)
 
         recordViewModel = ViewModelProvider(this).get(RecordViewModel::class.java)
         recordViewModel.allrecords.observe(this, Observer { records ->

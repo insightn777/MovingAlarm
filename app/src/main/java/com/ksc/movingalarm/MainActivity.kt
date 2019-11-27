@@ -94,9 +94,7 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPickerFragmen
                 }
                 return
             }
-
-            // Add other 'when' lines to check for other
-            // permissions this app might request.
+            // Add other 'when' lines to check for other permissions this app might request.
             else -> {
                 // Ignore all other requests.
             }
@@ -106,11 +104,8 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPickerFragmen
 
     override fun onResume() {
         super.onResume()
-        if (myAlarm.minute < 10 ) {
-            set_time.text = String.format("%d : 0%d", myAlarm.hour,myAlarm.minute)
-        } else {
-            set_time.text = String.format("%d : %d", myAlarm.hour,myAlarm.minute)
-        }
+        val s = if (myAlarm.minute < 10 ) "%d : 0%d" else "%d : %d"
+        set_time.text = String.format(s, myAlarm.hour,myAlarm.minute)
         limit_time.text = String.format("%d min",myAlarm.limitTime)
 
         for (i in 0..6) {
@@ -136,11 +131,8 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPickerFragmen
             TimePickerDialog.OnTimeSetListener { _, hourOfDay, minutes ->
                 myAlarm.hour = hourOfDay
                 myAlarm.minute = minutes
-                if (myAlarm.minute < 10 ) {
-                    set_time.text = String.format("%d : 0%d", myAlarm.hour,myAlarm.minute)
-                } else {
-                    set_time.text = String.format("%d : %d", myAlarm.hour,myAlarm.minute)
-                }
+                val s = if (myAlarm.minute < 10 ) "%d : 0%d" else "%d : %d"
+                set_time.text = String.format(s, myAlarm.hour,myAlarm.minute)
             },
             c.get(Calendar.HOUR_OF_DAY),
             c.get(Calendar.MINUTE),
@@ -211,7 +203,7 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPickerFragmen
 }
 
 class NumberPickerFragment(private val activity: MainActivity) : DialogFragment() {
-    internal lateinit var listener: NumberListener
+    private lateinit var listener: NumberListener
 
     interface NumberListener {
         fun onDialogPositiveClick(dialog: DialogFragment, limitTime: Int)

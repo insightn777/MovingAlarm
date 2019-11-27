@@ -78,7 +78,6 @@ class Map (private val activity: Activity) {
                 Log.e("permission","no show")
                 ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION)
             }
-
         } else {
             // Permission has already been granted
             Log.e("permission","already granted")
@@ -129,20 +128,16 @@ class Map (private val activity: Activity) {
             setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
             addGeofence(
                 Geofence.Builder()
-                    // Set the request ID of the geofence. This is a string to identify this geofence.
                     .setRequestId("destination")
-                    // Set the circular region of this geofence.
                     .setCircularRegion(
                         latitude,
                         longitude,
                         50f
                     )
-                    // Set the expiration duration of the geofence. This geofence gets automatically removed after this period of time.
                     .setExpirationDuration(limit * 60 * 1000L)
                     .setLoiteringDelay(2000)
                     // Set the transition types of interest. Alerts are only generated for these transition. We track entry and exit transitions in this sample.
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
-                    // Create the geofence.
                     .build()
             )
         }.build()
@@ -157,16 +152,13 @@ class Map (private val activity: Activity) {
                 addOnSuccessListener {
                     // Geofences added
                     Log.e("geoFence", "add $latitude:$longitude")
-
                 }
                 addOnFailureListener {
                     // Failed to add geofences
                     Log.e("geoFence", "add fail")
                 }
             }
-
         } //permission
-
     }  //addGeoFence
 
     fun removeGeofence () {

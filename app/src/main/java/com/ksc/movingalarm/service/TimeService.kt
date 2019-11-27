@@ -20,7 +20,6 @@ class TimeService : Service() {
     var remainTime = 0
     var success = false
     var mBound = false
-    private lateinit var mMessenger : Messenger
     private val mySharedPreferences by lazy {
         getSharedPreferences(applicationContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
     }
@@ -57,6 +56,11 @@ class TimeService : Service() {
         return START_STICKY
     }
 
+    override fun onBind(intent: Intent?): IBinder? {         // onBind 는 bind 할때마다 호출되지 않음
+        val mMessenger = Messenger(ServiceHandler(this))
+        return mMessenger.binder
+    }
+
     private lateinit var mActivityMessenger: Messenger
 
     fun startBindService(messenger: Messenger) {
@@ -64,11 +68,6 @@ class TimeService : Service() {
         mActivityMessenger = messenger
         mBound = true
         stopForeground(true)
-    }
-
-    override fun onBind(intent: Intent?): IBinder? {         // onBind 는 bind 할때마다 호출되지 않음
-        mMessenger = Messenger(ServiceHandler(this))
-        return mMessenger.binder
     }
 
     private fun startForegroundService1() {
@@ -117,9 +116,6 @@ class TimeService : Service() {
 
     private lateinit var remainTimeThread: ServiceThread
 
-    private var m = 0
-    private var s = 0
-
     fun runFore(rTime : Int) {
 
         val pendingIntent: PendingIntent = Intent(this, AlarmActivity::class.java).apply {
@@ -128,8 +124,8 @@ class TimeService : Service() {
             PendingIntent.getActivity(this, 0, it, 0)
         }
 
-        m = rTime/60
-        s = rTime%60
+        val m = rTime/60
+        val s = rTime%60
         val notification = NotificationCompat.Builder(this, NotificationCompat.CATEGORY_ALARM)
             .setContentIntent(pendingIntent)
             .setContentTitle("${m}:${s}")

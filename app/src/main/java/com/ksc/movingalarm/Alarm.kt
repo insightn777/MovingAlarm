@@ -11,8 +11,6 @@ import android.os.PowerManager
 import android.util.Log
 import com.ksc.movingalarm.service.TimeService
 import com.ksc.movingalarm.ui.AwakeActivity
-import java.text.DateFormat
-import java.text.SimpleDateFormat
 import java.util.*
 
 class Alarm(private val context: Context) {
@@ -52,9 +50,6 @@ class Alarm(private val context: Context) {
 
         triggerTime = calendar.timeInMillis
 
-        val df: DateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        Log.e("save", "save time: ${df.format(calendar.timeInMillis)}")
-
         with (sharedPref.edit()) {
             putInt(context.getString(R.string.hour_key), hour)
             putInt(context.getString(R.string.minute_key), minute)
@@ -67,9 +62,6 @@ class Alarm(private val context: Context) {
             putBoolean(context.getString(R.string.onOFF_key),onOFF)
             commit()
         }
-
-        Log.e("save", "save time: ${df.format(calendar.timeInMillis)}")
-
 
         if (onOFF) {
             setAlarm()

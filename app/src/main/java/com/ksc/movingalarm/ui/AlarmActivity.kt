@@ -24,15 +24,9 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
     /*************
     Service Connect
      ***************/
-
-    private val mySharedPreferences by lazy {
-        getSharedPreferences(applicationContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-    }
-
     private lateinit var mService: Messenger
-
+    private val mActivityMessenger = Messenger(ActivityHandler(this))
     private val mConnection = object : ServiceConnection {
-
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             mService = Messenger(binder)
@@ -43,27 +37,20 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
             }
             mService.send(msg)
         }
-
         override fun onServiceDisconnected(arg0: ComponentName) {
             Log.e("BIND", "UN_BIND")
         }
     }
 
-
     /*************
     Activity Control
      ***************/
 
-    private var m = 0
-    private var s = 0
-    fun setCount(int: Int) {
-        m = int/60
-        s = int%60
-        if (s>9) {
-            count_view.text = String.format("%d:%d",m,s)
-        } else {
-            count_view.text = String.format("%d:0%d",m,s)
-        }
+    fun setCount(remainTime: Int) {
+        val m = remainTime/60
+        val s = remainTime%60
+        val f = if (s>9) "%d : %d" else "%d : 0%d"
+        count_view.text = String.format(f,m,s)
     }
 
     class ActivityHandler(activity: AlarmActivity) : Handler() {
@@ -72,12 +59,6 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
             mActivity?.setCount(msg.what)
         }
     }
-
-    private val mActivityMessenger = Messenger(
-        ActivityHandler(
-            this
-        )
-    )
 
     fun arriveDest (view: View) {
         if ( arrive ) {
@@ -88,8 +69,8 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
 
         Intent(this, MyIntentService::class.java).apply {
             action = ACTION_FAIL
-        }.also { intent1 ->
-            startService(intent1)
+        }.also {
+            startService(it)
         }
     }
 
@@ -110,10 +91,14 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
         Log.e("map", "sync")
     }
 
+    private fun isRunService() :Boolean {
+        val mySharedPreferences = getSharedPreferences(applicationContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        return mySharedPreferences.getBoolean("run",true)
+    }
+
     override fun onResume() {
         super.onResume()
-        val runService = mySharedPreferences.getBoolean("run",true)
-        if (!runService) {
+        if (!isRunService()) {
             finish()
             Intent(this, ReportActivity::class.java).also {
                 startActivity(it)
@@ -129,8 +114,7 @@ class AlarmActivity : FragmentActivity(), OnMapReadyCallback {
     override fun onPause() {
         Log.e("PAUSE","PAUSE")
         // unbindService 빼먹으면 오류남 // onBind unBind 는 한번만 호출됨 왠지는 모름 ㅎ
-        val runService = mySharedPreferences.getBoolean("run",true)
-        if (runService) {
+        if (isRunService()) {
             val msg = Message().apply {
                 what = FORE_START
                 replyTo = mActivityMessenger
