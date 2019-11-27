@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.*
 import android.util.Log
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.ksc.movingalarm.ui.AlarmActivity
@@ -22,6 +21,9 @@ class TimeService : Service() {
     var mBound = false
     private val mySharedPreferences by lazy {
         getSharedPreferences(applicationContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+    }
+    val vibrator by lazy {
+        getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     }
 
     internal class ServiceHandler(service: TimeService) : Handler() {
@@ -52,12 +54,14 @@ class TimeService : Service() {
             .apply()
         startForegroundService1()
         remainTimeThread.start()
+        vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(1000,1000,1000,1000),1))
 
         return START_STICKY
     }
 
     override fun onBind(intent: Intent?): IBinder? {         // onBind 는 bind 할때마다 호출되지 않음
         val mMessenger = Messenger(ServiceHandler(this))
+        vibrator.cancel()
         return mMessenger.binder
     }
 
@@ -103,6 +107,7 @@ class TimeService : Service() {
     }
 
     override fun onDestroy() {
+        vibrator.cancel()
         mySharedPreferences.edit()
             .putBoolean("run",false)
             .apply()

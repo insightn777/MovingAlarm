@@ -80,8 +80,8 @@ class Alarm(private val context: Context) {
     } // save()
 
     private val alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    private val alarmIntent = Intent(context, AlarmReceiver::class.java).let { intent ->
-        PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+    private val alarmIntent = Intent(context, AlarmReceiver::class.java).let {
+        PendingIntent.getBroadcast(context, 0, it, PendingIntent.FLAG_CANCEL_CURRENT)
     }
 
     private fun setAlarm () {

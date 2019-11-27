@@ -27,14 +27,6 @@ import java.lang.ClassCastException
 import java.util.*
 import javax.xml.transform.ErrorListener
 
-/*
-    TO DO :
-        * Alarm set
-            1) Alarm on/off
-            2) vibrator
-        * Alarm off
-*/
-
 const val MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 11
 
 class MainActivity : FragmentActivity(), OnMapReadyCallback, NumberPickerFragment.NumberListener {
