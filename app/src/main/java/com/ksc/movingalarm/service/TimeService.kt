@@ -22,7 +22,7 @@ class TimeService : Service() {
     private val mySharedPreferences by lazy {
         getSharedPreferences(applicationContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
     }
-    val vibrator by lazy {
+    private val vibrator by lazy {
         getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     }
 
@@ -134,7 +134,7 @@ class TimeService : Service() {
         val notification = NotificationCompat.Builder(this, NotificationCompat.CATEGORY_ALARM)
             .setContentIntent(pendingIntent)
             .setContentTitle("${m}:${s}")
-            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setSmallIcon(R.drawable.ic_directions_run_black_24dp)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setAutoCancel(true)
