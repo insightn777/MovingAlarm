@@ -1,10 +1,7 @@
 package com.ksc.movingalarm.data
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 
 @Dao
 interface RecordDao {
@@ -16,6 +13,9 @@ interface RecordDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(record: Record)
+
+    @Query("DELETE from record_table")
+    suspend fun deleteAll()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun add(record: Record)

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -34,5 +35,9 @@ class ReportActivity : AppCompatActivity() {
         recordViewModel.allrecords.observe(this, Observer { records ->
             records?.let { adapter.setRecords(it) }
         })
+    }
+
+    fun clearHistory(view: View) {
+        recordViewModel.deleteAll()
     }
 }

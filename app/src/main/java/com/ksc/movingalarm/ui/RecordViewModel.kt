@@ -16,6 +16,10 @@ class RecordRepository(private val recordDao: RecordDao) {
     suspend fun insert(record: Record) {
         recordDao.insert(record)
     }
+
+    suspend fun deleteAll() {
+        recordDao.deleteAll()
+    }
 }
 
 class RecordViewModel(application: Application) : AndroidViewModel(application) {
@@ -33,5 +37,9 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     fun insert(record: Record) = viewModelScope.launch {
         repository.insert(record)
+    }
+
+    fun deleteAll() = viewModelScope.launch {
+        repository.deleteAll()
     }
 }

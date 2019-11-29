@@ -2,12 +2,15 @@ package com.ksc.movingalarm
 
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.PowerManager
+import com.ksc.movingalarm.service.RenewJobService
 import com.ksc.movingalarm.service.TimeService
 import com.ksc.movingalarm.ui.AwakeActivity
 import java.util.*
@@ -58,10 +61,10 @@ class Alarm(private val context: Context) {
 
         if (onOFF) {
             setAlarm()
+            setJob()
         } else {
             alarmMgr.cancel(alarmIntent)
-            alarmMgr.cancel(alarmIntent)
-            alarmMgr.cancel(alarmIntent)
+            jobScheduler.cancelAll()
 
             // REBOOT DISABLE
             val receiver = ComponentName(context, BootReceiver::class.java)
@@ -79,7 +82,20 @@ class Alarm(private val context: Context) {
         PendingIntent.getBroadcast(context, 0, it, PendingIntent.FLAG_CANCEL_CURRENT)
     }
 
-    private fun setAlarm() {
+    private val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+    private fun setJob() {
+        jobScheduler.cancelAll()
+        val jobInfo = JobInfo.Builder(
+            10316,
+            ComponentName(context, RenewJobService::class.java)
+        )
+            .setPeriodic(1 * 60 * 60 * 1000)
+            .setPersisted(true)
+            .build()
+        jobScheduler.schedule(jobInfo)
+    }
+
+    fun setAlarm() {
         val calendar = Calendar.getInstance()
         val nowTimeInMillis = calendar.timeInMillis
         calendar.apply {
@@ -92,7 +108,7 @@ class Alarm(private val context: Context) {
 
         for (i in 0..7) {
             var index = nowDayOfWeek + i - 1
-            index = if (index > 6 ) index-7 else index
+            index = if (index > 6 ) index - 7 else index
             if (sharedPref.getBoolean(daysOfWeek[index],false)) {
                 val alarmTime = setTimeInMillis + i * AlarmManager.INTERVAL_DAY
                 if (alarmTime > nowTimeInMillis) {
@@ -118,7 +134,6 @@ class Alarm(private val context: Context) {
         )
     } // setAlarm()
 
-
 //    fun showAlarm() {
 //        val al :Long? = alarmMgr.nextAlarmClock?.triggerTime
 //        val cal = Calendar.getInstance()
@@ -127,7 +142,6 @@ class Alarm(private val context: Context) {
 //        Log.e("setAlarm", "Alarm time: ${df.format(al?:100000)}\n")
 //        Log.e("next Alarm" , String.format("%s", cal.get(Calendar.DAY_OF_WEEK)))
 //    }
-
 }
 
 /********************************

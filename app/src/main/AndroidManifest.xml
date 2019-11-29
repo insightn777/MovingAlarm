@@ -16,17 +16,11 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-        <service
-                android:name=".service.MyIntentService"
-                android:exported="false" />
-
-        <activity android:name=".ui.ReportActivity" />
-        <activity android:name=".ui.AwakeActivity" />
-
         <meta-data
                 android:name="com.google.android.geo.API_KEY"
                 android:value="AIzaSyAX2YLhaGn2GdNBwJbJGi20liW3b4mFtQs" />
-
+        <activity android:name=".ui.ReportActivity" />
+        <activity android:name=".ui.AwakeActivity" />
         <activity android:name=".ui.AlarmActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -37,8 +31,14 @@
         </activity>
 
         <service
+                android:name=".service.MyIntentService"
+                android:exported="false" />
+        <service
                 android:name=".service.TimeService"
                 android:exported="false" />
+        <service
+                android:name=".service.RenewJobService"
+                android:permission="android.permission.BIND_JOB_SERVICE"/>
 
         <receiver android:name=".AlarmReceiver" />
         <receiver android:name=".GeoFenceBroadcastReceiver" />
