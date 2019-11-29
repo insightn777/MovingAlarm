@@ -3,6 +3,8 @@ package com.ksc.movingalarm.service
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
+import android.media.RingtoneManager
 import android.os.*
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -24,6 +26,10 @@ class TimeService : Service() {
     }
     private val vibrator by lazy {
         getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    }
+    private val ringtone by lazy {
+        val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+        RingtoneManager.getRingtone(applicationContext,uri)
     }
 
     internal class ServiceHandler(service: TimeService) : Handler() {
@@ -55,6 +61,13 @@ class TimeService : Service() {
         startForegroundService1()
         remainTimeThread.start()
         vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(1000,1000,1000,1000),1))
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioManager.setStreamVolume(
+            AudioManager.STREAM_ALARM,
+            audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM),
+            AudioManager.FLAG_PLAY_SOUND
+        )
+        ringtone.play()
 
         return START_STICKY
     }
@@ -62,6 +75,7 @@ class TimeService : Service() {
     override fun onBind(intent: Intent?): IBinder? {         // onBind 는 bind 할때마다 호출되지 않음
         val mMessenger = Messenger(ServiceHandler(this))
         vibrator.cancel()
+        ringtone.stop()
         return mMessenger.binder
     }
 
@@ -96,8 +110,8 @@ class TimeService : Service() {
 
         val notification = NotificationCompat.Builder(this, NotificationCompat.CATEGORY_ALARM)
             .setContentIntent(pendingIntent)
-            .setContentTitle("Arrive!!!")
-            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setContentTitle("Move!!!")
+            .setSmallIcon(R.drawable.ic_directions_run_black_24dp)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setAutoCancel(true)
